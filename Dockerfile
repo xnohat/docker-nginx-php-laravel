@@ -48,6 +48,22 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
+# Install node npm
+RUN curl -sL https://deb.nodesource.com/setup_12.x > /tmp/install-node.sh \
+  && bash /tmp/install-node.sh \
+  && apt-get update -qq -y \
+  && DEBIAN_FRONTEND=noninteractive apt-get -qq -y --no-install-recommends install \
+    nodejs \
+  \
+  # Configure Node dependencies \
+  && npm config set --global loglevel warn \
+  && npm install --global marked \
+  && npm install --global node-gyp \
+  && npm install --global yarn \
+  \
+  # Install node-sass's linux bindings \
+  && npm rebuild node-sass
+
 # create document root, fix permissions for www-data user and change owner to www-data
 RUN mkdir -p $APP_HOME/public && \
     mkdir -p /home/$USERNAME && chown $USERNAME:$USERNAME /home/$USERNAME \
